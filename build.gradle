@@ -20,7 +20,22 @@ configurations {
 }
 
 repositories {
+	mavenLocal()
 	mavenCentral()
+}
+
+ext {
+	// Spring Cloud 버전 설정 (2023.0.5)
+	// Spring Cloud는 분산 시스템 패턴(서비스 디스커버리, 게이트웨이 등)을 쉽게 구현하기 위한 도구 모음
+	set('springCloudVersion', "2023.0.5")
+}
+
+dependencyManagement {
+	imports {
+		// Spring Cloud BOM(Bill of Materials)을 가져와서 Spring Cloud 의존성 버전을 일관되게 관리
+		// BOM은 의존성 버전 관리를 간소화해주는 특별한 POM 파일
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+	}
 }
 
 dependencies {
@@ -33,6 +48,17 @@ dependencies {
 	testImplementation 'io.projectreactor:reactor-test'
 	testImplementation 'org.springframework.amqp:spring-rabbit-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+	testImplementation 'org.springframework.amqp:spring-rabbit-test'
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+	implementation 'org.postgresql:postgresql:42.7.2'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.amqp:spring-rabbit'
+	implementation 'org.springframework.boot:spring-boot-starter-amqp'
+
+	implementation 'com.linkedout:common:0.0.1'
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis-reactive'
 }
 
 tasks.named('test') {
