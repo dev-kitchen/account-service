@@ -1,13 +1,13 @@
 package com.linkedout.account.repository;
 
 import com.linkedout.common.entity.Account;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Mono;
 
-import java.util.Optional;
 
 @Repository
-public interface AccountRepository extends JpaRepository<Account, Long> {
+public interface AccountRepository extends ReactiveCrudRepository<Account, Long> {
 
 	/**
 	 * 이메일로 계정 조회
@@ -15,5 +15,5 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 	 * @param email 조회할 계정 이메일
 	 * @return 해당 이메일의 계정 (Optional)
 	 */
-	Optional<Account> findByEmail(String email);
+	Mono<Account> findByEmail(String email);
 }

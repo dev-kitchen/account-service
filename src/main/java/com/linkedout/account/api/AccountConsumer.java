@@ -98,8 +98,8 @@ public class AccountConsumer {
 					// 작업 타입에 따른 처리 분기
 					Object result = switch (operation) {
 						case "test" -> accountService.test();
-						case "findByEmail" -> accountService.findAccountByEmail(payloadConverter.convert(requestMessage.getPayload(), String.class));
-						case "createAccount" -> accountService.createAccount(payloadConverter.convert(requestMessage.getPayload(), GoogleUserInfo.class));
+						case "findByEmail" -> accountService.findAccountByEmail(payloadConverter.convert(requestMessage.getPayload(), String.class)).block();
+						case "createAccount" -> accountService.createAccount(payloadConverter.convert(requestMessage.getPayload(), GoogleUserInfo.class)).block();
 						default -> throw new UnsupportedOperationException("지원하지 않는 작업: " + operation);
 					};
 

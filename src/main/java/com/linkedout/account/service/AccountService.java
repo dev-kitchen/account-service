@@ -1,7 +1,6 @@
 package com.linkedout.account.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.linkedout.account.repository.AccountRepository;
 import com.linkedout.common.dto.account.AccountDTO;
 import com.linkedout.common.dto.auth.oauth.google.GoogleUserInfo;
 import com.linkedout.common.entity.Account;
@@ -9,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
+import com.linkedout.account.repository.AccountRepository;
 
 
 @Slf4j
@@ -24,11 +25,16 @@ public class AccountService {
 		return "ok";
 	}
 
-	public AccountDTO findAccountByEmail(String email){
-		return accountRepository.findByEmail(email).map(account -> modelMapper.map(account, AccountDTO.class)).orElse(null);
+	public Mono<AccountDTO> findAccountByEmail(String email) {
+		return accountRepository.findByEmail(email)
+			.mapNotNull(account -> {
+				// 계정이 있으면 DTO로 변환
+				return modelMapper.map(account, AccountDTO.class);
+			})
+			.switchIfEmpty(Mono.empty());
 	}
 
-	public Account createAccount(GoogleUserInfo userInfo) {
+	public Mono<AccountDTO> createAccount(GoogleUserInfo userInfo) {
 		Account account = Account.builder()
 			.email(userInfo.getEmail())
 			.name(userInfo.getName())
@@ -37,6 +43,11 @@ public class AccountService {
 			.providerId(userInfo.getSub())
 			.build();
 
-		return accountRepository.save(account);
+		log.info("{}", account);
+
+		return accountRepository.save(account)
+			.doOnNext(saved -> log.info("저장 후 계정: {}", saved))
+			.doOnError(e -> log.error("저장 중 오류: {}", e.getMessage(), e))
+			.map(savedAccount -> modelMapper.map(savedAccount, AccountDTO.class));
 	}
 }

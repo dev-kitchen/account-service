@@ -51,8 +51,8 @@ dependencies {
 
 	testImplementation 'org.springframework.amqp:spring-rabbit-test'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
-	implementation 'org.postgresql:postgresql:42.7.2'
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-data-r2dbc'
+	implementation 'io.r2dbc:r2dbc-postgresql:0.8.13.RELEASE'
 	implementation 'org.springframework.amqp:spring-rabbit'
 	implementation 'org.springframework.boot:spring-boot-starter-amqp'
 
