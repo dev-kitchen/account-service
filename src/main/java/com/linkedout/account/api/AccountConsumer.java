@@ -1,13 +1,16 @@
 package com.linkedout.account.api;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.linkedout.account.service.AccountService;
 import com.linkedout.common.constant.RabbitMQConstants;
 import com.linkedout.common.dto.ApiRequestData;
 import com.linkedout.common.dto.ApiResponseData;
 import com.linkedout.common.dto.ServiceMessageDTO;
+import com.linkedout.common.dto.auth.oauth.google.GoogleUserInfo;
 import com.linkedout.common.exception.BaseException;
 import com.linkedout.common.exception.ErrorResponseBuilder;
 import com.linkedout.common.messaging.ServiceIdentifier;
+import com.linkedout.common.util.PayloadConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -29,6 +32,8 @@ public class AccountConsumer {
 	private final AccountService accountService;
 	private final ErrorResponseBuilder errorResponseBuilder;
 	private final ServiceIdentifier serviceIdentifier;
+	private final ObjectMapper objectMapper;
+	private final PayloadConverter payloadConverter;
 
 
 	@RabbitListener(queues = RabbitMQConstants.ACCOUNT_API_QUEUE)
@@ -93,9 +98,8 @@ public class AccountConsumer {
 					// 작업 타입에 따른 처리 분기
 					Object result = switch (operation) {
 						case "test" -> accountService.test();
-						// case "createAccount" -> handleCreateAccount(requestMessage);
-						// case "validateToken" -> handleValidateToken(requestMessage);
-						// case "refreshToken" -> handleRefreshToken(requestMessage);
+						case "findByEmail" -> accountService.findAccountByEmail(payloadConverter.convert(requestMessage.getPayload(), String.class));
+						case "createAccount" -> accountService.createAccount(payloadConverter.convert(requestMessage.getPayload(), GoogleUserInfo.class));
 						default -> throw new UnsupportedOperationException("지원하지 않는 작업: " + operation);
 					};
 
