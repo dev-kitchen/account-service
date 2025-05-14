@@ -34,7 +34,7 @@ import reactor.core.scheduler.Schedulers;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class ServiceMessageConsumer {
+public class MessageConsumer {
   private final RabbitTemplate rabbitTemplate;
   private final AccountService accountService;
   private final ErrorResponseBuilder errorResponseBuilder;
@@ -74,15 +74,12 @@ public class ServiceMessageConsumer {
     // 작업 타입에 따른 리액티브 처리 분기
     Mono<?> resultMono =
         switch (operation) {
-          case "test" -> {
-            Object result = accountService.test();
-            yield Mono.just(result);
-          }
-          case "findByEmail" -> {
+          case "getTest" -> accountService.test();
+          case "getFindByEmail" -> {
             String email = payloadConverter.convert(requestMessage.getPayload(), String.class);
             yield accountService.findAccountByEmail(email);
           }
-          case "createAccount" -> {
+          case "postCreateAccount" -> {
             GoogleUserInfo userInfo =
                 payloadConverter.convert(requestMessage.getPayload(), GoogleUserInfo.class);
             yield accountService.createAccount(userInfo);

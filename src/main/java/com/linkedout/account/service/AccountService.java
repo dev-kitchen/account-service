@@ -19,9 +19,9 @@ public class AccountService {
   private final ModelMapper modelMapper;
   private final AccountRepository accountRepository;
 
-  public String test() {
+  public Mono<String> test() {
     log.info("서비스로직 진입");
-    return "ok";
+    return Mono.just("ok");
   }
 
   public Mono<AccountDTO> findAccountByEmail(String email) {
