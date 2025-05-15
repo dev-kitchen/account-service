@@ -3,10 +3,10 @@ package com.linkedout.account.api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.linkedout.account.service.AccountService;
 import com.linkedout.common.constant.RabbitMQConstants;
-import com.linkedout.common.dto.ServiceMessageDTO;
-import com.linkedout.common.dto.auth.oauth.google.GoogleUserInfo;
 import com.linkedout.common.exception.ErrorResponseBuilder;
 import com.linkedout.common.messaging.ServiceIdentifier;
+import com.linkedout.common.model.dto.ServiceMessageDTO;
+import com.linkedout.common.model.dto.auth.oauth.google.GoogleUserInfo;
 import com.linkedout.common.util.converter.PayloadConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -88,17 +88,30 @@ public class MessageConsumer {
         };
 
     resultMono
-        .map(
-            result -> {
-              log.info("서비스로직 완료, 응답생성. 결과: {}", result);
+			.flatMap(result -> {
+				log.info("서비스로직 완료, 응답생성. 결과: {}", result);
 
-              return ServiceMessageDTO.builder()
-                  .correlationId(correlationId)
-                  .senderService(serviceIdentifier.getServiceName())
-                  .operation(operation + "Response")
-                  .payload(result)
-                  .build();
-            })
+				ServiceMessageDTO<Object> response = ServiceMessageDTO.builder()
+					.correlationId(correlationId)
+					.senderService(serviceIdentifier.getServiceName())
+					.operation(operation + "Response")
+					.payload(result)
+					.build();
+
+				return Mono.just(response);
+			})
+			.switchIfEmpty(Mono.defer(() -> {
+				log.info("빈 결과값, 응답생성");
+
+				ServiceMessageDTO<Object> emptyResponse = ServiceMessageDTO.builder()
+					.correlationId(correlationId)
+					.senderService(serviceIdentifier.getServiceName())
+					.operation(operation + "Response")
+					.payload(null)  // 또는 적절한 값
+					.build();
+
+				return Mono.just(emptyResponse);
+			}))
         .onErrorResume(
             e -> {
               log.error("서비스 요청 처리 오류: operation={}, error={}", operation, e.getMessage(), e);

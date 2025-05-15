@@ -1,6 +1,6 @@
 package com.linkedout.account.entity;
 
-import com.linkedout.common.type.RoleEnum;
+import com.linkedout.common.model.type.RoleEnum;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;

@@ -2,8 +2,8 @@ package com.linkedout.account.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.linkedout.account.entity.Account;
-import com.linkedout.common.dto.account.AccountDTO;
-import com.linkedout.common.dto.auth.oauth.google.GoogleUserInfo;
+import com.linkedout.common.model.dto.account.AccountDTO;
+import com.linkedout.common.model.dto.auth.oauth.google.GoogleUserInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -28,10 +28,7 @@ public class AccountService {
     return accountRepository
         .findByEmail(email)
         .mapNotNull(
-            account -> {
-              // 계정이 있으면 DTO로 변환
-              return modelMapper.map(account, AccountDTO.class);
-            })
+            account -> modelMapper.map(account, AccountDTO.class))
         .switchIfEmpty(Mono.empty());
   }
 
