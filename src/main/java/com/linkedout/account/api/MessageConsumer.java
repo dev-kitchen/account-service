@@ -6,7 +6,7 @@ import com.linkedout.common.constant.RabbitMQConstants;
 import com.linkedout.common.exception.ErrorResponseBuilder;
 import com.linkedout.common.messaging.ServiceIdentifier;
 import com.linkedout.common.model.dto.ServiceMessageDTO;
-import com.linkedout.common.model.dto.auth.oauth.google.GoogleUserInfo;
+import com.linkedout.common.model.dto.auth.oauth.google.GoogleUserInfoDTO;
 import com.linkedout.common.util.converter.PayloadConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -75,13 +75,17 @@ public class MessageConsumer {
     Mono<?> resultMono =
         switch (operation) {
           case "getTest" -> accountService.test();
+					case "getFindById" -> {
+						Long id = payloadConverter.convert(requestMessage.getPayload(), Long.class);
+						yield accountService.findAccountById(id);
+					}
           case "getFindByEmail" -> {
             String email = payloadConverter.convert(requestMessage.getPayload(), String.class);
             yield accountService.findAccountByEmail(email);
           }
           case "postCreateAccount" -> {
-            GoogleUserInfo userInfo =
-                payloadConverter.convert(requestMessage.getPayload(), GoogleUserInfo.class);
+						GoogleUserInfoDTO userInfo =
+                payloadConverter.convert(requestMessage.getPayload(), GoogleUserInfoDTO.class);
             yield accountService.createAccount(userInfo);
           }
           default -> Mono.error(new UnsupportedOperationException("지원하지 않는 작업: " + operation));

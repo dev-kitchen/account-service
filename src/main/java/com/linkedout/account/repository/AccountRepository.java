@@ -1,12 +1,13 @@
 package com.linkedout.account.repository;
 
-import com.linkedout.account.entity.Account;
+import com.linkedout.common.model.entity.Account;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
 
 @Repository
-public interface AccountRepository extends ReactiveCrudRepository<Account, Long> {
+public interface AccountRepository extends ReactiveCrudRepository<
+	Account, Long> {
 
   /**
    * 이메일로 계정 조회

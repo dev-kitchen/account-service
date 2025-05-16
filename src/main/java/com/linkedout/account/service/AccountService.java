@@ -1,9 +1,9 @@
 package com.linkedout.account.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.linkedout.account.entity.Account;
 import com.linkedout.common.model.dto.account.AccountDTO;
-import com.linkedout.common.model.dto.auth.oauth.google.GoogleUserInfo;
+import com.linkedout.common.model.dto.auth.oauth.google.GoogleUserInfoDTO;
+import com.linkedout.common.model.entity.Account;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -24,6 +24,14 @@ public class AccountService {
     return Mono.just("ok");
   }
 
+	public Mono<AccountDTO> findAccountById(Long id) {
+		return accountRepository
+			.findById(id)
+			.mapNotNull(
+				account -> modelMapper.map(account, AccountDTO.class))
+			.switchIfEmpty(Mono.empty());
+	}
+
   public Mono<AccountDTO> findAccountByEmail(String email) {
     return accountRepository
         .findByEmail(email)
@@ -32,7 +40,7 @@ public class AccountService {
         .switchIfEmpty(Mono.empty());
   }
 
-  public Mono<AccountDTO> createAccount(GoogleUserInfo userInfo) {
+  public Mono<AccountDTO> createAccount(GoogleUserInfoDTO userInfo) {
     Account account =
         Account.builder()
             .email(userInfo.getEmail())
